@@ -1,0 +1,592 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#070707">
+<title>53 — A Story for Dad</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600;700&display=swap');
+:root{--bg:#070707;--paper:#f3eee7;--muted:#aaa39a;--gold:#d7aa68;--line:rgba(255,255,255,.12)}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--paper);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body.lock{overflow:hidden}
+img{display:block}
+#gate{position:fixed;inset:0;z-index:99;background:#050505;display:grid;place-items:center;padding:28px;transition:.7s}
+#gate.hide{opacity:0;visibility:hidden;pointer-events:none}
+.gatebox{text-align:center;max-width:520px}
+.mono{font:11px "DM Mono",monospace;letter-spacing:.24em;text-transform:uppercase;color:#aaa39a}
+.gatebox h1{font:600 clamp(72px,18vw,150px) "Playfair Display",serif;line-height:.8;margin:22px 0 18px}
+.gatebox p{color:#b8b0a7;line-height:1.7;font-size:15px}
+.btn{margin-top:30px;border:1px solid rgba(255,255,255,.22);background:transparent;color:white;border-radius:999px;padding:14px 22px;font:11px "DM Mono",monospace;letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+.topbar{position:fixed;left:18px;right:18px;top:16px;z-index:30;display:flex;align-items:center;gap:14px}
+.progress{height:2px;background:rgba(255,255,255,.12);flex:1}
+.progress span{display:block;width:0;height:100%;background:var(--gold)}
+.music{border:1px solid rgba(255,255,255,.16);background:rgba(6,6,6,.6);color:white;border-radius:999px;padding:8px 11px;font:10px "DM Mono",monospace;cursor:pointer;backdrop-filter:blur(12px)}
+.cover{min-height:100svh;position:relative;display:flex;align-items:flex-end;overflow:hidden}
+.cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.9) contrast(1.05)}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.02) 20%,rgba(0,0,0,.35) 52%,rgba(0,0,0,.94) 100%)}
+.covertext{position:relative;z-index:1;padding:12vh 7vw 9vh;max-width:1000px}
+.covertext h2{font:600 clamp(60px,12vw,150px) "Playfair Display",serif;line-height:.85;margin:14px 0}
+.gold{color:var(--gold)}
+.covertext p{max-width:540px;color:#d7d0c7;font-size:17px;line-height:1.7}
+.scroll{margin-top:28px;color:#b9b1a8;font:10px "DM Mono",monospace;letter-spacing:.18em;text-transform:uppercase}
+.scroll span{display:inline-block;width:45px;height:1px;background:#777;margin-right:10px;vertical-align:middle}
+.chapter{min-height:100svh;display:grid;grid-template-columns:1.12fr .88fr;gap:7vw;align-items:center;padding:12vh 7vw;border-top:1px solid var(--line)}
+.chapter:nth-of-type(odd){background:linear-gradient(180deg,#070707,#0a0908)}
+.chapter:nth-of-type(even){background:linear-gradient(180deg,#0a0a09,#070707)}
+.photo-wrap{position:relative;min-height:68vh;display:grid;place-items:center}
+.photo-wrap .glow{position:absolute;inset:14% 12%;background:radial-gradient(circle,rgba(215,170,104,.17),transparent 65%);filter:blur(40px)}
+.photo-wrap img{position:relative;max-width:100%;max-height:75vh;width:auto;height:auto;object-fit:contain;box-shadow:0 24px 80px rgba(0,0,0,.45)}
+.words{max-width:520px}
+.index{font:11px "DM Mono",monospace;letter-spacing:.12em;color:#77716a}
+.line{width:76px;height:1px;background:var(--line);margin:26px 0}
+.words h2{font:600 clamp(42px,5vw,78px) "Playfair Display",serif;line-height:.98;margin:0 0 18px}
+.words p{font-size:clamp(16px,1.7vw,20px);line-height:1.8;color:#bdb5ad;margin:0}
+.bridge{min-height:72svh;display:grid;place-items:center;text-align:center;padding:12vh 7vw;border-top:1px solid var(--line)}
+.bridge h2{font:500 clamp(46px,7vw,92px) "Playfair Display",serif;line-height:1.04;max-width:950px;margin:18px auto}
+.final{min-height:100svh;display:grid;place-items:center;text-align:center;padding:10vh 7vw;background:radial-gradient(circle at 50% 45%,rgba(215,170,104,.13),transparent 34%),#070707}
+.final h2{font:600 clamp(58px,10vw,130px) "Playfair Display",serif;line-height:.88;margin:20px 0}
+.final p{max-width:650px;font-size:clamp(17px,2vw,23px);line-height:1.75;color:#c9c1b8}
+.heart{font-size:28px;color:var(--gold);margin-top:26px}
+.reveal{opacity:0;transform:translateY(38px);transition:opacity 1s ease,transform 1s ease}
+.reveal.visible{opacity:1;transform:none}
+@media(max-width:820px){
+  .chapter{display:flex;flex-direction:column;padding:12vh 6vw 10vh;gap:34px}
+  .photo-wrap{min-height:auto;width:100%}
+  .photo-wrap img{max-height:66vh;max-width:100%}
+  .words{width:100%}
+  .words h2{font-size:clamp(40px,12vw,62px)}
+  .covertext{padding:14vh 6vw 10vh}
+}
+
+/* Opening celebration — added without changing the story layout */
+#celebration{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:100;
+  pointer-events:none;
+}
+</style>
+</head>
+<body class="lock">
+<canvas id="celebration" aria-hidden="true"></canvas>
+
+<div id="gate">
+  <div class="gatebox">
+    <div class="mono">A little something for Dad</div>
+    <h1>53</h1>
+    <p>Scroll slowly. The photographs will tell the story.</p>
+    <button class="btn" id="enter">Tap to enter</button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="progress"><span id="bar"></span></div>
+  <button class="music" id="musicBtn">♫ ON</button>
+</div>
+
+<section class="cover">
+  <img src="assets/cover.png" alt="Dad running, smiling with his tongue out">
+  <div class="covertext reveal">
+    <div class="mono">04 • 10 • 2026</div>
+    <h2>Happy <span class="gold">53rd</span><br>Birthday, Papa.</h2>
+    <p>A few years. A lot of memories. And one very good reason to keep scrolling.</p>
+    <div class="scroll"><span></span>scroll to begin</div>
+  </div>
+</section>
+
+<main>
+
+    <section class="chapter reveal" id="m1">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-01.png" alt="THE EARLY DAYS" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">01 / 24</div>
+        <div class="line"></div>
+        <h2>THE EARLY DAYS</h2>
+        <p>Before the stories, there was a young man with a whole lot of life ahead.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m2">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-02.png" alt="A LITTLE STYLE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">02 / 24</div>
+        <div class="line"></div>
+        <h2>A LITTLE STYLE</h2>
+        <p>Some things change. Some style never does.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m3">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-03.png" alt="JUST LIVING" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">03 / 24</div>
+        <div class="line"></div>
+        <h2>JUST LIVING</h2>
+        <p>Young, carefree, and already making ordinary days look good.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m4">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-04.png" alt="THE CREW" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">04 / 24</div>
+        <div class="line"></div>
+        <h2>THE CREW</h2>
+        <p>Good friends. Good jokes. The kind of memories that stay.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m5">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-05.png" alt="THE GOOD OLD DAYS" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">05 / 24</div>
+        <div class="line"></div>
+        <h2>THE GOOD OLD DAYS</h2>
+        <p>A little mischief, a lot of laughter.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m6">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-06.png" alt="THOSE YEARS" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">06 / 24</div>
+        <div class="line"></div>
+        <h2>THOSE YEARS</h2>
+        <p>Different time. Same smile.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m7">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-07.png" alt="THE OLD PHOTOS" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">07 / 24</div>
+        <div class="line"></div>
+        <h2>THE OLD PHOTOS</h2>
+        <p>The photographs may be old. The energy isn't.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m8">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-08.png" alt="THE LOOK" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">08 / 24</div>
+        <div class="line"></div>
+        <h2>THE LOOK</h2>
+        <p>Apparently, the sunglasses era was serious.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m9">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-09.png" alt="THE SMILE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">09 / 24</div>
+        <div class="line"></div>
+        <h2>THE SMILE</h2>
+        <p>That face says: life is meant to be enjoyed.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m10">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-10.png" alt="THE COOL PHASE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">10 / 24</div>
+        <div class="line"></div>
+        <h2>THE COOL PHASE</h2>
+        <p>Effortless then. Still effortless now.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m11">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-11.png" alt="THE ENERGY" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">11 / 24</div>
+        <div class="line"></div>
+        <h2>THE ENERGY</h2>
+        <p>The fitness. The discipline. The madness. 😄</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m12">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-12.png" alt="THE BEGINNING OF FOREVER" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">12 / 24</div>
+        <div class="line"></div>
+        <h2>THE BEGINNING OF FOREVER</h2>
+        <p>One beautiful chapter became a lifetime of stories.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m13">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-13.png" alt="TWO PEOPLE, ONE LIFE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">13 / 24</div>
+        <div class="line"></div>
+        <h2>TWO PEOPLE, ONE LIFE</h2>
+        <p>And the adventure became a shared one.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m14">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-14.png" alt="KEEP EXPLORING" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">14 / 24</div>
+        <div class="line"></div>
+        <h2>KEEP EXPLORING</h2>
+        <p>Some people collect things. Some people collect moments.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m15">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-15.png" alt="MORE ROADS, MORE STORIES" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">15 / 24</div>
+        <div class="line"></div>
+        <h2>MORE ROADS, MORE STORIES</h2>
+        <p>Always somewhere to go. Always something to see.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m16">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-16.png" alt="THE FUN NEVER LEFT" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">16 / 24</div>
+        <div class="line"></div>
+        <h2>THE FUN NEVER LEFT</h2>
+        <p>The years moved on. The jolly side stayed.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m17">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-17.png" alt="FAMILY, IN ONE FRAME" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">17 / 24</div>
+        <div class="line"></div>
+        <h2>FAMILY, IN ONE FRAME</h2>
+        <p>The best moments somehow always end up being family moments.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m18">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-18.png" alt="TOGETHER" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">18 / 24</div>
+        <div class="line"></div>
+        <h2>TOGETHER</h2>
+        <p>Some memories don't need a caption.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m19">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-19.png" alt="OUR HAPPY PLACE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">19 / 24</div>
+        <div class="line"></div>
+        <h2>OUR HAPPY PLACE</h2>
+        <p>A little chaos. A lot of love. Exactly right.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m20">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-20.png" alt="THE SIGNATURE LOOK" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">20 / 24</div>
+        <div class="line"></div>
+        <h2>THE SIGNATURE LOOK</h2>
+        <p>Same confidence. Different decade.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m21">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-21.png" alt="THE WARRIOR" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">21 / 24</div>
+        <div class="line"></div>
+        <h2>THE WARRIOR</h2>
+        <p>Keep moving. Keep pushing. Keep showing up.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m22">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-22.png" alt="CELEBRATE LIFE" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">22 / 24</div>
+        <div class="line"></div>
+        <h2>CELEBRATE LIFE</h2>
+        <p>Because every year deserves to be celebrated.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m23">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-23.png" alt="THE JOURNEY" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">23 / 24</div>
+        <div class="line"></div>
+        <h2>THE JOURNEY</h2>
+        <p>From then to now — one photo at a time.</p>
+      </div>
+    </section>
+    
+    <section class="chapter reveal" id="m24">
+      <div class="photo-wrap">
+        <div class="glow"></div>
+        <img src="assets/photo-24.png" alt="STILL GOING" loading="lazy">
+      </div>
+      <div class="words">
+        <div class="index">24 / 24</div>
+        <div class="line"></div>
+        <h2>STILL GOING</h2>
+        <p>More roads. More laughs. More memories waiting to happen.</p>
+      </div>
+    </section>
+    
+<section class="bridge reveal">
+  <div>
+    <div class="mono">still going</div>
+    <h2>The years changed.<br>The spirit didn't.</h2>
+    <p class="mono">keep scrolling</p>
+  </div>
+</section>
+
+<section class="final reveal">
+  <div>
+    <div class="mono">one more chapter</div>
+    <h2>Happy Birthday,<br>Dad.</h2>
+    <p>Keep smiling. Keep moving. Keep making ordinary days feel like celebrations.</p>
+    <div class="heart">♡</div>
+  </div>
+</section>
+</main>
+
+<audio id="musicEl" preload="auto" loop>
+  <source src="assets/bachna-ae-haseeno-01m28-to-end.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const gate=document.getElementById('gate');
+const enter=document.getElementById('enter');
+const audio=document.getElementById('musicEl');
+const musicBtn=document.getElementById('musicBtn');
+const bar=document.getElementById('bar');
+let active=false;
+
+function start(){
+  active=true;
+  document.body.classList.remove('lock');
+  gate.classList.add('hide');
+  audio.volume=.86;
+  audio.play().catch(()=>{});
+}
+enter.addEventListener('click',start);
+window.addEventListener('load',()=>{audio.volume=.86; audio.play().catch(()=>{});});
+['pointerdown','touchstart','wheel','keydown'].forEach(evt=>window.addEventListener(evt,()=>{
+  if(!active) start();
+  else if(audio.paused) audio.play().catch(()=>{});
+},{passive:true}));
+
+musicBtn.addEventListener('click',(e)=>{
+  e.stopPropagation();
+  if(audio.paused){audio.play().catch(()=>{}); musicBtn.textContent='♫ ON';}
+  else{audio.pause(); musicBtn.textContent='♫ OFF';}
+});
+
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});
+},{threshold:.16});
+document.querySelectorAll('.reveal').forEach(x=>observer.observe(x));
+
+window.addEventListener('scroll',()=>{
+  const max=document.documentElement.scrollHeight-innerHeight;
+  bar.style.width=(max>0?scrollY/max*100:0)+'%';
+},{passive:true});
+
+// Opening celebration: party-popper bursts + full-screen confetti.
+(() => {
+  const canvas = document.getElementById('celebration');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    canvas.style.display = 'none';
+    return;
+  }
+
+  let W = 0, H = 0, raf = 0;
+  const particles = [];
+  const gravity = 0.18;
+  const start = performance.now();
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function burst(originX, originY, side) {
+    const count = 72;
+    for (let i = 0; i < count; i++) {
+      const angle = side === 'left'
+        ? (-0.12 + Math.random() * 1.1)
+        : (Math.PI - 1.0 + Math.random() * 1.1);
+      const speed = 5 + Math.random() * 9;
+      particles.push({
+        x: originX,
+        y: originY,
+        vx: Math.cos(angle) * speed * (side === 'left' ? 1 : -1),
+        vy: Math.sin(angle) * speed - (1.8 + Math.random() * 3),
+        w: 5 + Math.random() * 9,
+        h: 3 + Math.random() * 7,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - .5) * .28,
+        life: 150 + Math.random() * 90,
+        age: 0,
+        alpha: 0.95,
+        // HSL values keep the palette festive while remaining simple.
+        hue: Math.floor(Math.random() * 360),
+      });
+    }
+  }
+
+  function startCelebration() {
+    resize();
+    burst(W * 0.06, H * 0.72, 'left');
+    burst(W * 0.94, H * 0.72, 'right');
+
+    // A few secondary bursts shortly after the first one.
+    setTimeout(() => {
+      burst(W * 0.10, H * 0.28, 'left');
+      burst(W * 0.90, H * 0.28, 'right');
+    }, 180);
+
+    animate();
+    // Let the opening breathe before the celebration fades away.
+    setTimeout(() => {
+      canvas.style.transition = 'opacity 900ms ease';
+      canvas.style.opacity = '0';
+      setTimeout(() => cancelAnimationFrame(raf), 950);
+    }, 4300);
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const p = particles[i];
+      p.age++;
+      p.vy += gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.rot += p.vr;
+      p.alpha *= 0.992;
+
+      if (p.age > p.life || p.y > H + 80 || p.x < -100 || p.x > W + 100) {
+        particles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = `hsl(${p.hue} 85% 62%)`;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    }
+
+    if (particles.length > 0) {
+      raf = requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, W, H);
+    }
+  }
+
+  window.addEventListener('resize', resize, {passive:true});
+
+  // Start as the page opens, independent of the music/autoplay behavior.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startCelebration, {once:true});
+  } else {
+    startCelebration();
+  }
+})();
+
+</script>
+</body>
+</html>
